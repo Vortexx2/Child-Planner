@@ -365,6 +365,24 @@
                   step="500"
                   value="15000"
                 />
+                <div class="flex items-center justify-between mt-3">
+                  <label class="text-xs uppercase tracking-wider text-gray-400"
+                    >SIP Step-up (Annual)</label
+                  >
+                  <div class="flex items-center gap-2">
+                    <input
+                      type="number"
+                      id="sipStepUp"
+                      min="0"
+                      max="100"
+                      step="0.1"
+                      value="0"
+                      class="small-number"
+                      aria-label="SIP step up (%)"
+                    />
+                    <span class="text-xs text-gray-400">%</span>
+                  </div>
+                </div>
               </div>
 
               <div>
@@ -514,6 +532,7 @@
         currentCost: 5000000,
         inflation: 10,
         sip: 15000,
+        sipStepUp: 0,
         lumpSum: 500000,
         returnRate: 10,
       };
@@ -527,6 +546,7 @@
         currentCost: document.getElementById('currentCost'),
         sipSlider: document.getElementById('sipSlider'),
         sipVal: document.getElementById('sipVal'),
+        sipStepUp: document.getElementById('sipStepUp'),
         lumpSumSlider: document.getElementById('lumpSumSlider'),
         lumpSumVal: document.getElementById('lumpSumVal'),
         returnRate: document.getElementById('returnRate'),
@@ -575,12 +595,22 @@
         // Future Value of Lump Sum
         const fvLump = state.lumpSum * Math.pow(1 + r, years);
 
-        // Future Value of SIP (Annuity Due: payments at beginning of period)
-        // FV = P * [((1+i)^n - 1) / i] * (1+i)
-        const fvSip =
-          state.sip *
-          ((Math.pow(1 + r_monthly, months) - 1) / r_monthly) *
-          (1 + r_monthly);
+        // Future Value of SIP with annual step-up (payments at beginning of period)
+        function fvOfSip(initialPmt, months, r_monthly, annualStepPercent) {
+          let payment = initialPmt;
+          let fv = 0;
+          for (let m = 0; m < months; m++) {
+            // payment at beginning of month, then grow for the month
+            fv = (fv + payment) * (1 + r_monthly);
+            // after completing a year, step up payment for next months
+            if ((m + 1) % 12 === 0) {
+              payment *= 1 + annualStepPercent / 100;
+            }
+          }
+          return fv;
+        }
+
+        const fvSip = fvOfSip(state.sip, months, r_monthly, state.sipStepUp);
 
         const totalCorpus = fvLump + fvSip;
         const gap = totalCorpus - futureCost;
@@ -600,12 +630,25 @@
           const remainingTarget = futureCost - fvLumpDelayed;
 
           if (remainingTarget > 0) {
-            // Solve for PMT in SIP formula
-            // PMT = Target / ( [((1+i)^n - 1)/i] * (1+i) )
-            const sipFactor =
-              ((Math.pow(1 + r_monthly, delayedMonths) - 1) / r_monthly) *
-              (1 + r_monthly);
-            const requiredNewSip = remainingTarget / sipFactor;
+            // Solve for PMT in SIP formula numerically (accounting for annual step-ups)
+            function findRequiredSip(target, months, r_monthly, annualStepPercent) {
+              let lo = 0;
+              let hi = 1e7; // upper bound for monthly SIP search
+              for (let i = 0; i < 60; i++) {
+                const mid = (lo + hi) / 2;
+                const fv = fvOfSip(mid, months, r_monthly, annualStepPercent);
+                if (fv < target) lo = mid;
+                else hi = mid;
+              }
+              return hi;
+            }
+
+            const requiredNewSip = findRequiredSip(
+              remainingTarget,
+              delayedMonths,
+              r_monthly,
+              state.sipStepUp
+            );
             costOfDelay = requiredNewSip - state.sip;
           }
         }
@@ -810,6 +853,10 @@
 
       els.sipSlider.addEventListener('input', e => {
         state.sip = parseInt(e.target.value);
+        updateUI();
+      });
+      els.sipStepUp.addEventListener('input', e => {
+        state.sipStepUp = parseFloat(e.target.value) || 0;
         updateUI();
       });
       els.lumpSumSlider.addEventListener('input', e => {
