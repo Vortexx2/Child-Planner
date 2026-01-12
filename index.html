@@ -158,6 +158,17 @@
         /* font-weight: bold; */
         box-shadow: 0 0 10px rgba(5, 150, 105, 0.25);
       }
+
+      /* Small number input used for custom return rate */
+      .small-number {
+        width: 4.5rem;
+        background: transparent;
+        border: 1px solid #333;
+        padding: 0.25rem 0.5rem;
+        color: #fff;
+        border-radius: 0.375rem;
+        text-align: right;
+      }
       .fade-in {
         animation: fadeIn 0.5s ease-in;
       }
@@ -381,14 +392,30 @@
                 <label class="text-xs uppercase text-gray-500"
                   >Expected Annual Return</label
                 >
-                <select
-                  id="returnRate"
-                  class="bg-transparent text-white font-bold border-none outline-none text-right cursor-pointer"
-                >
-                  <option value="8">8% (Conservative)</option>
-                  <option value="10" selected>10% (Balanced)</option>
-                  <option value="12">12% (Equity)</option>
-                </select>
+                <div class="flex items-center gap-3">
+                  <select
+                    id="returnRate"
+                    class="bg-transparent text-white font-bold border-none outline-none text-right cursor-pointer"
+                  >
+                    <option value="8">8% (Conservative)</option>
+                    <option value="10" selected>10% (Balanced)</option>
+                    <option value="12">12% (Equity)</option>
+                    <option value="custom">Custom</option>
+                  </select>
+
+                  <!-- Custom rate input: hidden unless 'Custom' is selected -->
+                  <input
+                    type="number"
+                    id="returnRateCustom"
+                    min="0"
+                    max="30"
+                    step="0.1"
+                    value="10"
+                    class="return-custom small-number hidden"
+                    aria-label="Custom annual return rate (%)"
+                  />
+                  <span class="text-xs text-gray-400">%</span>
+                </div>
               </div>
             </div>
           </div>
@@ -503,6 +530,7 @@
         lumpSumSlider: document.getElementById('lumpSumSlider'),
         lumpSumVal: document.getElementById('lumpSumVal'),
         returnRate: document.getElementById('returnRate'),
+        returnRateCustom: document.getElementById('returnRateCustom'),
         futureCostDisplay: document.getElementById('futureCostDisplay'),
         inflationDisplay: document.getElementById('inflationDisplay'),
         yearsToGoDisplay: document.getElementById('yearsToGoDisplay'),
@@ -789,8 +817,27 @@
         updateUI();
       });
       els.returnRate.addEventListener('change', e => {
-        state.returnRate = parseInt(e.target.value);
+        const val = e.target.value;
+        if (val === 'custom') {
+          // Show custom input and use its current value
+          els.returnRateCustom.classList.remove('hidden');
+          const customVal = parseFloat(els.returnRateCustom.value) || state.returnRate;
+          state.returnRate = customVal;
+        } else {
+          // Hide custom input and use selected value
+          els.returnRateCustom.classList.add('hidden');
+          state.returnRate = parseFloat(val);
+        }
         updateUI();
+      });
+
+      // When user types a custom rate, update state and UI
+      els.returnRateCustom.addEventListener('input', e => {
+        const v = parseFloat(e.target.value);
+        if (!isNaN(v)) {
+          state.returnRate = v;
+          updateUI();
+        }
       });
 
       // Range background helpers: paint filled (gold) portion and initialize listeners
@@ -817,6 +864,15 @@
       window.addEventListener('DOMContentLoaded', () => {
         initChart();
         initRangeBackgrounds();
+        // Initialize custom return input visibility and value
+        if (els.returnRate.value === 'custom') {
+          els.returnRateCustom.classList.remove('hidden');
+          els.returnRateCustom.value = state.returnRate;
+        } else {
+          els.returnRateCustom.classList.add('hidden');
+          // Ensure custom input reflects current state for quick switching
+          els.returnRateCustom.value = state.returnRate;
+        }
         updateUI();
       });
     </script>
