@@ -41,16 +41,17 @@
       .border-sandipani-gold {
         border-color: #c5a059;
       }
-      .btn-sandipani {
+      .btn-green {
         background: linear-gradient(135deg, #2d2d2d 0%, #1a1a1a 100%);
-        border: 1px solid #c5a059;
-        color: #c5a059;
-        transition: all 0.3s;
+        border: 1px solid #059669;
+        color: #059669;
+        transition: all 0.2s;
+        font-weight: bold;
       }
-      .btn-sandipani:hover {
-        background: #c5a059;
-        color: #121212;
-        box-shadow: 0 0 15px rgba(197, 160, 89, 0.4);
+      .btn-green:hover {
+        background: #059669;
+        color: #ffffff;
+        box-shadow: 0 0 15px rgba(5, 150, 105, 0.25);
       }
 
       /* Matrix Colors for Status Indicators */
@@ -147,14 +148,15 @@
         cursor: pointer;
       }
       input[type='range']:focus {
-        box-shadow: 0 0 0 4px rgba(197,160,89,0.08);
+        box-shadow: 0 0 0 4px rgba(197, 160, 89, 0.08);
       }
 
       /* Utility Helpers */
       .active-inflation {
-        background-color: #c5a059 !important;
-        color: #121212 !important;
-        font-weight: bold;
+        background-color: #059669 !important;
+        color: #ffffff !important;
+        /* font-weight: bold; */
+        box-shadow: 0 0 10px rgba(5, 150, 105, 0.25);
       }
       .fade-in {
         animation: fadeIn 0.5s ease-in;
@@ -173,18 +175,39 @@
   </head>
   <body class="min-h-screen p-4 md:p-8">
     <div class="max-w-7xl mx-auto">
-      <header class="mb-8 flex items-center justify-between">
-        <div>
-          <h1 class="text-2xl font-bold tracking-tight text-white">
-            SANDIPANI
-            <span
-              class="text-sandipani-gold text-sm font-normal uppercase tracking-widest ml-2"
-              >Wealth Planning</span
-            >
-          </h1>
-          <p class="text-gray-500 text-sm mt-1">Education Simulator v2.0</p>
+      <nav
+        class="flex flex-col md:flex-row justify-between items-center mb-12 py-4 border-b border-white/10"
+      >
+        <a
+          href="https://sandipanicapital.com"
+          target="_blank"
+          class="mb-4 md:mb-0"
+        >
+          <img
+            src="sandipani-transparent.png"
+            alt="Sandipani Capital"
+            class="h-16 md:h-20 hover:opacity-80 transition"
+          />
+        </a>
+        <div class="text-right">
+          <p
+            class="text-xs uppercase tracking-widest text-slate-500 font-semibold"
+          >
+            Helping You Invest Confidently
+          </p>
         </div>
-      </header>
+      </nav>
+
+      <div class="text-center mb-10">
+        <h1
+          class="text-3xl md:text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-emerald-400 mb-3"
+        >
+          Child Education Planner
+        </h1>
+        <p class="text-slate-400 text-lg">
+          Investing is easy. Planning is hard. We make it simpler.
+        </p>
+      </div>
 
       <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
         <div class="lg:col-span-5 space-y-6">
@@ -277,21 +300,21 @@
               <div class="grid grid-cols-3 gap-2">
                 <button
                   onclick="setInflation(8)"
-                  class="inflation-btn btn-sandipani py-2 px-4 rounded text-sm"
+                  class="inflation-btn btn-green py-2 px-4 rounded text-sm"
                   data-val="8"
                 >
                   8%
                 </button>
                 <button
                   onclick="setInflation(10)"
-                  class="inflation-btn btn-sandipani py-2 px-4 rounded text-sm active-inflation"
+                  class="inflation-btn btn-green py-2 px-4 rounded text-sm active-inflation"
                   data-val="10"
                 >
                   10%
                 </button>
                 <button
                   onclick="setInflation(12)"
-                  class="inflation-btn btn-sandipani py-2 px-4 rounded text-sm"
+                  class="inflation-btn btn-green py-2 px-4 rounded text-sm"
                   data-val="12"
                 >
                   12%
@@ -366,7 +389,7 @@
                   <option value="10" selected>10% (Balanced)</option>
                   <option value="12">12% (Equity)</option>
                 </select>
-              </div> 
+              </div>
             </div>
           </div>
         </div>
@@ -440,10 +463,17 @@
         </div>
       </div>
 
-      <footer class="mt-12 text-center text-gray-600 text-xs pb-8">
-        <p>
-          Calculations are approximations for planning purposes. Market returns
-          are not guaranteed.
+      <footer class="mt-20 py-12 border-t border-white/5 text-center">
+        <p class="text-slate-500 text-sm mb-1">
+          Built for the Indian Investor.
+        </p>
+        <p class="text-slate-400 text-base font-bold tracking-widest uppercase">
+          Built by Sandipani Capital.
+        </p>
+        <p class="mt-6 text-[10px] text-slate-700 max-w-2xl mx-auto">
+          Disclaimer: Mutual fund investments are subject to market risks. Read
+          all scheme related documents carefully before investing. This
+          calculator is for educational purposes only.
         </p>
       </footer>
     </div>
